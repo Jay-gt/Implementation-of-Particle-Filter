@@ -1,2 +1,2 @@
-# Implementation-of-Particle-Filter
+# Particle-Filter
 A localization algorithm based on particle filter.
