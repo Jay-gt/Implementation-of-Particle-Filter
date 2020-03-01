@@ -124,7 +124,7 @@ def resample_from_index(particles, weights, indexes):
     weights[:] = weights[indexes]
     weights /= np.sum(weights)#normalization
 
-
+···
 #compute the average location of all particles
 def loc_robot(particles, N):
     x = 0
@@ -134,7 +134,7 @@ def loc_robot(particles, N):
         y += particle[1]/N
     loc = np.around([x, y], decimals=2)
     return loc
-
+···
 
 x_range = np.array([0, 800])
 y_range = np.array([0, 600])
