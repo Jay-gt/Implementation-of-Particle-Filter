@@ -8,7 +8,6 @@ np.set_printoptions(suppress=True)#小数不以科学计数法的形式输出
 import cv2
 
 
-#画出鼠标移动轨迹
 def drawLines(img, points, r, g, b):
     cv2.polylines(img, [np.int32(points)], isClosed=False, color=(r, g, b))#Draws several polygonal curves
 
