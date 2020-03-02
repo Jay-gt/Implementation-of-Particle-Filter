@@ -12,7 +12,7 @@ import cv2
 def drawLines(img, points, r, g, b):
     cv2.polylines(img, [np.int32(points)], isClosed=False, color=(r, g, b))#Draws several polygonal curves
 
-
+#鼠标处画叉
 def drawCross(img, center, r, g, b):
     d = 5
     t = 2
@@ -31,28 +31,30 @@ def mouseCallback(event, x, y, flags, null):
     global previous_y
     global zs
 
-    center = np.array([[x, y]])
+    center = np.array([[x, y]])#mouse location
     trajectory = np.vstack((trajectory, np.array([x, y])))
     # noise=sensorSigma * np.random.randn(1,2) + sensorMu
 
     if previous_x > 0:
-        heading = np.arctan2(np.array([y - previous_y]), np.array([previous_x - x]))#compute orientation from -pi to pi
+        heading = np.arctan2(np.array([y - previous_y]), np.array([previous_x - x]))#compute moving orientation from -pi to pi
 
         if heading > 0:
             heading = -(heading - np.pi)
         else:
             heading = -(np.pi + heading)
 
-        distance = np.linalg.norm(np.array([[previous_x, previous_y]]) - np.array([[x, y]]), axis=1)#compute distance
+        distance = np.linalg.norm(np.array([[previous_x, previous_y]]) - np.array([[x, y]]), axis=1)#compute norm(moving distance) along row
 
         std = np.array([2, 4])
         u = np.array([heading, distance])
         predict(particles, u, std, dt=1.)
-        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))
+        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))+np.random.random()#real measurements add noise?
         update(particles, weights, z=zs, R=50, landmarks=landmarks)
 
         indexes = systematic_resample(weights)
         resample_from_index(particles, weights, indexes)
+        #cv2.putText(img, "RealLocation{x},{y}".format(x=x, y=y), (530, 40), 1,
+                    #1.0, (0, 0, 255))
 
     previous_x = x
     previous_y = y
@@ -86,10 +88,14 @@ def update(particles, weights, z, R, landmarks):
     weights.fill(1.)
     for i, landmark in enumerate(landmarks):
         distance = np.power((particles[:, 0] - landmark[0]) ** 2 + (particles[:, 1] - landmark[1]) ** 2, 0.5)#compute the distance between particles and landmarks
-        weights *= scipy.stats.norm(distance, R).pdf(z[i])
+        b = np.array([2]*400)
+        weights *= scipy.stats.pareto.pdf(abs(distance-z[i])+1, b=b, loc=0, scale=1)
+        #以distance为期望，R为标准差作正态分布，distance和z[i]差距越大，则概率密度函数越小，对应particle的weight也越小
+        #weights *= scipy.stats.norm(loc=distance, scale=R).pdf(z[i])
 
     weights += 1.e-300  # avoid round-off to zero
     weights /= sum(weights)#normalization
+    print(weights)
 
 
 def neff(weights):
@@ -187,8 +193,10 @@ while (1):
     cv2.putText(img, "Landmarks", (30, 20), 1, 1.0, (255, 0, 0))
     cv2.putText(img, "Particles", (30, 40), 1, 1.0, (255, 255, 255))
     cv2.putText(img, "Robot Trajectory(Ground truth)", (30, 60), 1, 1.0, (0, 255, 0))
-    cv2.putText(img, "robot", (530, 20), 1, 1.0, (0, 0, 255))
+    cv2.putText(img, "compute robot", (530, 20), 1, 1.0, (0, 0, 255))
     cv2.putText(img, "{x},{y}".format(x=loc_robot(particles, N)[0], y=loc_robot(particles, N)[1]), (580, 20), 1, 1.0, (0, 0, 255))
+    cv2.putText(img, "real robot", (530, 40), 1, 1.0, (0, 0, 255))
+    cv2.putText(img, "{x},{y}".format(x=center[0][0], y=center[0][1]), (580, 40), 1, 1.0, (0, 0, 255))
     drawLines(img, np.array([[10, 55], [25, 55]]), 0, 255, 0)
 
 cv2.destroyAllWindows()
