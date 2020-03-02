@@ -11,4 +11,4 @@
 
 3.update()之后的systematic_resample()函数以及resample_from_index()函数是n-partition重采样，而weight是何种分布不影响重采样，所以后面的函数无需改造，  
 重点放在关键语句的改造上。通过查阅scipy官方文档得知帕累托分布在scipy中的函数是scipy.stats.paredo
-![Alt text](https://github.com/Jay-gt/Particle-Filter/blob/master/%E6%94%B9%E9%80%A01%E6%88%AA%E5%9B%BE.jpg)
+
