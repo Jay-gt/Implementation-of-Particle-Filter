@@ -8,7 +8,6 @@ np.set_printoptions(suppress=True)#小数不以科学计数法的形式输出
 import cv2
 
 
-#画出鼠标移动轨迹
 def drawLines(img, points, r, g, b):
     cv2.polylines(img, [np.int32(points)], isClosed=False, color=(r, g, b))#Draws several polygonal curves
 
@@ -131,7 +130,7 @@ def resample_from_index(particles, weights, indexes):
     weights /= np.sum(weights)#normalization
 
 
-#compute the average location of all particles
+#compute the center of all particles as the approximate location of mouse
 def loc_robot(particles, N):
     x = 0
     y = 0
