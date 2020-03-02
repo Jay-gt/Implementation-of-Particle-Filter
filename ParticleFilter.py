@@ -7,7 +7,7 @@ np.set_printoptions(threshold=3)#输出值的个数为3
 np.set_printoptions(suppress=True)#小数不以科学计数法的形式输出
 import cv2
 
-
+#绘制鼠标轨迹
 def drawLines(img, points, r, g, b):
     cv2.polylines(img, [np.int32(points)], isClosed=False, color=(r, g, b))#Draws several polygonal curves
 
@@ -47,7 +47,7 @@ def mouseCallback(event, x, y, flags, null):
         std = np.array([2, 4])
         u = np.array([heading, distance])
         predict(particles, u, std, dt=1.)
-        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))+np.random.random()#real measurements add noise?
+        zs = (np.linalg.norm(landmarks - center, axis=1) + (np.random.randn(NL) * sensor_std_err))+np.random.randint(1,20)#real measurements add noise?
         update(particles, weights, z=zs, R=50, landmarks=landmarks)
 
         indexes = systematic_resample(weights)
@@ -194,9 +194,9 @@ while (1):
     cv2.putText(img, "Particles", (30, 40), 1, 1.0, (255, 255, 255))
     cv2.putText(img, "Robot Trajectory(Ground truth)", (30, 60), 1, 1.0, (0, 255, 0))
     cv2.putText(img, "compute robot", (530, 20), 1, 1.0, (0, 0, 255))
-    cv2.putText(img, "{x},{y}".format(x=loc_robot(particles, N)[0], y=loc_robot(particles, N)[1]), (580, 20), 1, 1.0, (0, 0, 255))
+    cv2.putText(img, "{x},{y}".format(x=loc_robot(particles, N)[0], y=loc_robot(particles, N)[1]), (660, 20), 1, 1.0, (0, 0, 255))
     cv2.putText(img, "real robot", (530, 40), 1, 1.0, (0, 0, 255))
-    cv2.putText(img, "{x},{y}".format(x=center[0][0], y=center[0][1]), (580, 40), 1, 1.0, (0, 0, 255))
+    cv2.putText(img, "{x},{y}".format(x=center[0][0], y=center[0][1]), (620, 40), 1, 1.0, (0, 0, 255))
     drawLines(img, np.array([[10, 55], [25, 55]]), 0, 255, 0)
 
 cv2.destroyAllWindows()
