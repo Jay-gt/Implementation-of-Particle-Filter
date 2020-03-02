@@ -88,6 +88,7 @@ def update(particles, weights, z, R, landmarks):
     for i, landmark in enumerate(landmarks):
         distance = np.power((particles[:, 0] - landmark[0]) ** 2 + (particles[:, 1] - landmark[1]) ** 2, 0.5)#compute the distance between particles and landmarks
         b = np.array([2]*400)
+        #以abs(distance-z[i])+1为横坐标，1为最小值，参数b为2构造帕累托分布，distance和z[i]差距越大，则概率密度函数越小，对应particle的weight也越小
         weights *= scipy.stats.pareto.pdf(abs(distance-z[i])+1, b=b, loc=0, scale=1)
         #以distance为期望，R为标准差作正态分布，distance和z[i]差距越大，则概率密度函数越小，对应particle的weight也越小
         #weights *= scipy.stats.norm(loc=distance, scale=R).pdf(z[i])
